@@ -1,0 +1,60 @@
+0
+:
+{expression: "14-0/3-13", response: "1", answer: 1, status: "right"}
+1
+:
+{expression: "13/0*3", response: "0", answer: NaN, status: "wrong"}
+2
+:
+{expression: "3*6", response: "18", answer: 18, status: "right"}
+3
+:
+{expression: "5+8+10", response: "23", answer: 23, status: "right"}
+4
+:
+{expression: "2*9+1*8", response: "26", answer: 26, status: "right"}
+5
+:
+{expression: "13-11/8", response: "11.63", answer: 11.63, status: "right"}
+6
+:
+{expression: "7-10", response: "8.69", answer: -3, status: "wrong"}
+7
+:
+{expression: "9-3/10", response: "72", answer: 8.69, status: "wrong"}
+8
+:
+{expression: "8/1*9", response: "72", answer: 72, status: "right"}
+9
+:
+{expression: "6/1*6-12", response: "24", answer: 24, status: "right"}
+10
+:
+{expression: "7-10/9-1", response: "5", answer: 4.88, status: "wrong"}
+11
+:
+{expression: "4/8", response: "0.5", answer: 0.5, status: "right"}
+12
+:
+{expression: "0/4", response: "0", answer: 0, status: "right"}
+13
+:
+{expression: "12-3", response: "9", answer: 9, status: "right"}
+14
+:
+{expression: "3-12*9", response: "-105", answer: -105, status: "right"}
+15
+:
+{expression: "14-4/1*7", response: "-14", answer: -14, status: "right"}
+16
+:
+{expression: "14/9+4-14", response: "123", answer: -8.44, status: "wrong"}
+17
+:
+{expression: "8+6", response: "14", answer: 14, status: "right"}
+18
+:
+{expression: "11-4*8*14", response: "-121", answer: -437, status: "wrong"}
+19
+:
+{expression: "4/7-4+5", response: "1.56", answer: 1.56, status: "right"}

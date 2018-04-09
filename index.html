@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href='http://cdn.webfont.youziku.com/webfonts/nomal/115913/45904/5aba67fcf629d8174c40e9e4.css' rel='stylesheet' type='text/css' />
+    <link href='http://cdn.webfont.youziku.com/webfonts/nomal/115913/45904/5aba6896f629d8174c40e9e5.css' rel='stylesheet' type='text/css' />
+    <link href='http://cdn.webfont.youziku.com/webfonts/nomal/115913/45904/5abb1f81f629d8174c40ea5e.css' rel='stylesheet' type='text/css' />
+    <link href='http://cdn.webfont.youziku.com/webfonts/nomal/115913/45904/5abb1fb1f629d8174c40ea5f.css' rel='stylesheet' type='text/css' />
+    <link href='http://cdn.webfont.youziku.com/webfonts/nomal/115913/45904/5abc6dd3f629d811e06ec34b.css' rel='stylesheet' type='text/css' />
+    <link href='http://cdn.webfont.youziku.com/webfonts/nomal/115913/445/5abd9f2af629d91600d19478.css' rel='stylesheet' type='text/css' />
+    <link href='http://cdn.webfont.youziku.com/webfonts/nomal/115913/45904/5abe79e3f629d91600d194fe.css' rel='stylesheet' type='text/css' />
+    <link rel="stylesheet" href="index.css">
+    <link rel="./jquery.js" href="style.css">
+
+</head>
+<body>  <div class="show">
+            <div class="right"></div>
+        </div>
+        
+        <div class="wrapper">           
+                <span>四则运算练习</span>
+                <div class="inputer">
+                    &nbsp;&nbsp;请输入题目数量:<input id="Num" type="text"><br>
+                    &nbsp;&nbsp;请输入数值范围:<input id="range" type="text">
+                    <button id="btn">确定</button>
+                    <button id="submit">提交</button>
+                    <button id="refresh">刷新</button>
+                </div>
+                <div class="contentZone">
+                    <div id="parent">
+                        <div id="child"></div>
+                    </div>
+                    <ol id = "content">
+                    </ol>
+                </div>
+                <div class="bottom">
+                    <div class="text">统计</div>
+                    <div class="content">
+                            正确：共<input type="text" readonly value="0">道<br>
+                            错误：共<input type="text" readonly value="0">道
+                    </div>
+                    <div class="result">总分<input type="text" value="0" readonly></div>
+                    <div id="download" class="save" title="保存到本地"></div>
+                </div>
+            </div>
+    <script src="./jquery.js"></script>
+    <script>
+    var count,
+    range;
+    var expreArr = [];
+    //答案
+    var answerArr = [];
+    //存放表达式，回答，答案，以及题目答案判断
+    var detailArr = [];
+    //需进行深拷贝，否则覆盖
+    var obj = { expression:'',response:'',answer:'',status:''};
+
+    btn.onclick = function(){
+        var strLi = '',
+        strInput = '';
+        getCount = document.getElementsByClassName('inputer')[0].getElementsByTagName('input')[0].value,
+        getRange = document.getElementsByClassName('inputer')[0].getElementsByTagName('input')[1].value;
+        console.log(getCount+getRange);
+        for( var i = 0; i < getCount; i++){
+            detailArr.push(deepClone(obj));
+            expreArr.push(createExpression(getRange));
+            detailArr[i].expression = expreArr[i];
+        }
+        for(var i = 0; i < detailArr.length; i++){
+            answerArr.push(calculate(detailArr[i].expression) + "");//将number型转为string型
+            detailArr[i].answer = answerArr[i];
+        }
+        count = getCount;
+        range = getRange;
+        if(getCount != null && getRange != null){
+            for(var i = 0; i < getCount; i++){
+                strLi += '<li>'+(i+1)+'、    '+ detailArr[i].expression + '= <input type="text"></li>';
+                strInput +='';
+            }
+        $('#content').append(strLi);
+        $('.response').append(strInput);
+        }
+
+    }
+    submit.onclick = function(){
+        var strDiv = '',
+            strAnswer = '',
+            rightCount = 0,
+            wrongCount = 0,
+            score = 0;
+            rightTh = [],
+            wrongTh = [];
+        var respArrays = document.getElementById('content');
+        for( var i = 0; i < detailArr.length; i++){
+            // console.log(respArray[i].value+"  "+detailArr[i].answer);
+            // console.log('index:'+i);
+            var responseValue = respArrays.getElementsByTagName('li')[i].getElementsByTagName('input')[0].value;
+            if(responseValue === detailArr[i].answer && responseValue!= null){
+                $('#content li:eq('+i+')').append('<div class="rightMsg"></div>');
+                // strDiv += "<div class='rightMsg'></div>" ;
+                detailArr[i].status = 'right';
+                rightCount++;
+                rightTh.push(i+1);
+            }else{
+                // strDiv += "<div class='wrongMsg'></div>";
+                $('#content li:eq('+i+')').append('<div class="wrongMsg"></div><input type="text" readonly value="'+detailArr[i].answer+'">');
+                detailArr[i].status = 'wrong';
+                wrongCount++;
+                wrongTh.push(i+1);
+            } 
+            detailArr[i].response = responseValue;
+            strAnswer +='<input type="text"value="'+ detailArr[i].answer+'"readonly>';         
+        }
+        $('.status').append(strDiv);
+        $('.answer').append(strAnswer);
+        //打印统计结果
+        var oResults = document.getElementsByClassName('wrapper')[0].getElementsByClassName('bottom')[0];
+        //正确数
+        oResults.getElementsByClassName('content')[0].getElementsByTagName('input')[0].value = rightCount;
+        //错误数
+        oResults.getElementsByClassName('content')[0].getElementsByTagName('input')[1].value = wrongCount;
+        //得分|正确率
+        oResults.getElementsByClassName('result')[0].getElementsByTagName('input')[0].value = Math.round(rightCount/(rightCount + wrongCount) * 100);
+        console.log("正确题数："+rightCount + "题号："+rightTh);
+        console.log("错误题数："+wrongCount + "题号："+ wrongTh);
+        console.log("正确率："+Math.round(rightCount/(rightCount + wrongCount)*100)+'%');
+    }
+    refresh.onclick = function(){
+        location.reload();
+    }
+    // 将数据传到后台php
+    download.click = function(){
+        $ajax({
+            type:'POST',
+            url:'./getDatas.php',
+            data:{detailArr},
+            success:function(){
+                alert("保存成功！");
+                window.location.reload();
+            },
+            error:function(){
+                alert("保存失败");
+            }
+        })
+    }
+    // 深拷贝
+    function deepClone(origin, target){
+        var target = target || {},
+            toStr = Object.prototype.toString,
+            arrStr = "[object Array]";
+        
+        for(var prop in origin){
+            if(origin.hasOwnProperty(prop)){
+                if(origin[prop] !== "null" && typeof(origin[prop]) == 'object'){
+                    if(toStr.call(origin[prop] )== arrStr){
+                        target[prop] = [];
+                    }else{
+                        target[prop] = {};
+                    }
+                    deepClone(origin[prop],target[prop]);
+                }else{
+                         target[prop] = origin[prop];
+                     }
+            }
+        }
+        return target;
+    }
+
+    function createOperator(){
+        var oper = '';
+        var i = parseInt(4*Math.random());
+        switch(i){
+            case 0:
+                oper = "+";
+                break;
+            case 1:
+                oper = "-";
+                break;
+            case 2: 
+                oper = "*";
+                break;
+            case 3:
+                oper = "/";
+                break;
+            default:
+                oper = "+";
+                console.log(oper);
+                break;
+                
+        }
+        return oper;
+    }
+
+    function createNum(range){
+        var num = parseInt(range*Math.random());
+        return num;
+    }
+    function createExpression(range){
+        var list = new Array();
+        //随机生成运算符个数1-3个
+        var operNum = parseInt(3*Math.random())+1;
+        switch(operNum){
+            case 1:
+                list.push(createNum(range));
+                list.push(createOperator()+'');
+                list.push(createNum(range));
+                break;
+            case 2:
+                var bracketStart = parseInt(3*Math.random()),
+                bracketEnd = 0;
+                if(bracketStart == 0){
+                    bracketEnd = 0;
+                }
+                else{
+                    bracketEnd = bracketStart + 1;
+                }
+                for(var i = 1; i <= 3; i++){
+                    if(i == bracketStart){
+                        list.push('(');
+                    }
+                    list.push(createNum(range));
+                    if(i == bracketEnd){
+                        list.push(')');
+                    }
+                    list.push(createOperator()+'');
+                }
+                list.pop(list.length);
+                break;
+            case 3:
+                var bracketStart = parseInt(4*Math.random()),
+                    bracketEnd = 0;
+                if(bracketStart == 0){
+                    bracketEnd = 0;
+                }
+                else{
+                    bracketEnd = bracketStart + 1;
+                }
+                for(var i = 1; i <= 4; i ++){
+                    if(i == bracketStart){
+                        list.push('(');
+                    }
+                    list.push(createNum(range));
+                    if(i == bracketEnd){
+                        list.push(')');
+                    }
+                    list.push(createOperator());
+                }
+                list.pop(list.length);
+                break;  
+        }
+        return list.join("");
+    }
+
+  //利用正则将表达式字符串存入栈
+  function retExp(exp){
+            var reg = /\d+|\+|\-|\*|\/|\(|\)/g;
+            var tempArr = [];
+            var stack = [];
+            var temp = '';
+            while((temp = reg.exec(exp)) != null){
+                tempArr.push(temp);  
+            }
+            for(var i = 0; i < tempArr.length; i++){
+                //只需获取该数组中元素的首位值，余下元素可忽略
+                stack.push(tempArr[i][0]);
+            }
+            // console.log(tempArr)
+            // console.log(stack);
+            return stack;
+        }
+    
+    function isOperator(value) {
+            var operatorString = "+-*/()";
+            return operatorString.indexOf(value) > -1
+        }
+
+        function getPrioraty(value) {
+            switch (value) {
+                case '+':
+                case '-':
+                    return 1;
+                case '*':
+                case '/':
+                    return 2;
+                default:
+                    return 0;
+            }
+        }
+
+        //判断加减乘除的优先级
+        function prioraty(o1, o2) {  
+            return getPrioraty(o1) <= getPrioraty(o2);
+        }
+        //计算
+        function calculate(exp) {
+            //输入栈
+            var inputStack = [];
+            //输出栈
+            var outputStack = [];
+            //输出队列
+            var outputQueue = [];
+
+            inputStack = retExp(exp);
+
+            //处理字符和数字
+            while (inputStack.length > 0) {
+
+                //shift 顶部取得一项后移除，unshift 顶部推入
+                cur = inputStack.shift();
+
+                //如果是符号 -->  + - * / ( )
+                if (isOperator(cur)) {
+                    if (cur == '(') {
+                        //push 从尾部推入一项
+                        outputStack.push(cur);
+                    } else if (cur == ')') {
+                        //pop 从尾部取得一项，之后移出
+                        var po = outputStack.pop();
+                        while (po != '(' && outputStack.length > 0) {
+                            outputQueue.push(po);
+                            po = outputStack.pop();
+                        }
+                        if (po != '(') {
+                            throw "错误：没有匹配";
+                        }
+                    } else { //符号时，处理 + - * /
+                        while (prioraty(cur, outputStack[outputStack.length - 1])
+                                && outputStack.length > 0) {
+                            outputQueue.push(outputStack.pop());
+                        }
+                        outputStack.push(cur);
+                    }
+                } else { //是数字的时候，推入数字
+                    outputQueue.push(new Number(cur));
+                }
+            }
+
+            if (outputStack.length > 0) {
+                if (outputStack[outputStack.length - 1] == ')'
+                        || outputStack[outputStack.length - 1] == '(') {
+                    throw "错误：没有匹配";
+                }
+                while (outputStack.length > 0) {
+                    outputQueue.push(outputStack.pop());
+                }
+            }
+            return evalRpn(outputQueue);
+        }
+        function evalRpn(queue) { 
+            var outputStack = [];
+            while (queue.length > 0) {
+                var cur = queue.shift();
+
+                if (!isOperator(cur)) {
+                    outputStack.push(cur);
+                } else {
+                    //如果输出堆栈长度小于 2
+                    if (outputStack.length < 2) {
+                        throw "无效堆栈长度";
+                    }
+                    var second = outputStack.pop();
+                    var first = outputStack.pop();
+
+                    outputStack.push(getResult(first, second, cur));
+                }
+            }
+
+            if (outputStack.length != 1) {
+                throw "不正确的运算";
+            } else {
+                return outputStack[0];
+            }
+        }
+        function getResult(first, second, operator){
+            var result = 0;
+            switch (operator) {
+                case '+':
+                    result = first + second;
+                    break;
+                case '-': 
+                    result = first - second;
+                    break;
+                case '*':
+                    result = first * second;
+                    break;
+                case '/':
+                    result = first / second;
+                    break;
+                default:
+                    return 0;
+            }
+
+            //浮点数的小数位超过两位时，只保留两位小数点
+            function formatFloat(f, digit) {
+                //pow(10,n) 为 10 的 n 次方
+                var m = Math.pow(10, digit);
+                return parseInt(f * m, 10) / m;
+            }
+            return (formatFloat(result, 2));
+        }
+
+         window.onload = function () {
+            var oParent = document.getElementById('parent');
+            var oChild = document.getElementById('child');
+            var oBox = document.getElementsByClassName('contentZone')[0];
+            var oContent = document.getElementById('content');
+            var oResponse = document.getElementsByClassName('response')[0];
+            var oStatus = document.getElementsByClassName('status')[0];
+            var oAnswer = document.getElementsByClassName('answer')[0];
+            var disX = 0;
+            oChild.onmousedown = function (ev) {
+                var ev = ev || window.event;
+                disY = ev.clientY - oChild.offsetTop;
+                document.onmousemove = function (ev) {
+                    var ev = ev || window.event;
+                    var oBox = document.getElementsByClassName('contentZone')[0];
+                    var L  = ev.clientY - disY;  // 限制小div拖动范围   
+                    if(L<0){
+                        L = 0;
+                    }
+                    else if(L>oParent.offsetHeight - oChild.offsetHeight){
+                        L = oParent.offsetHeight - oChild.offsetHeight;
+                    }
+                    var scale = L/(oParent.offsetHeight - oChild.offsetHeight);// 定义一个滚动的比例
+                    oChild.style.top = L +'px';
+                    //通过scale比例，滚动的时候改变content的top值
+                    oContent.style.top = -scale * (oContent.offsetHeight-oBox.offsetHeight) + 'px';
+                }
+                document.onmouseup = function(){
+                    document.onmousemove = null;
+                    document.onmouseup = null;
+                }
+                return false;
+            }
+        }
+    </script>   
+</body>
+</html>
